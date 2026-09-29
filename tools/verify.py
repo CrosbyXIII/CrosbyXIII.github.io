@@ -27,6 +27,7 @@ def verify(root=ROOT):
     records = parse_index(data.decode())
     validate_records(site, records, package_dir="debs")
     assert json.loads((site / "catalog.json").read_text()) == records
+    assert (site / "CydiaIcon.png").read_bytes() == (root / "assets/CydiaIcon.png").read_bytes()
     for record in records:
         original = root / "packages" / record["Filename"].removeprefix("debs/")
         assert (site / record["Filename"]).read_bytes() == original.read_bytes()

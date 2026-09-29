@@ -23,6 +23,7 @@ For iOS 5 packages, use the legacy `iphoneos-arm` architecture and gzip-compress
 
 - `repository.json`: public repository name, description, author, and URLs.
 - `packages/*.deb`: release installers. GitHub publishes only the packages and generated site, not arbitrary local files.
+- `assets/CydiaIcon.png`: the 64×64 repository picture copied to the root of the published Cydia source. It uses the CrosbyXIII GitHub profile photo.
 - `tools/build.py`: runs the standard Debian `dpkg-scanpackages --multiversion` tool, preserves package metadata, checks payload sizes/hashes and duplicate identities, and writes `site/`.
 - `.github/workflows/publish.yml`: automatically builds and publishes changes pushed to `main`; pull requests are checked but never deployed.
 

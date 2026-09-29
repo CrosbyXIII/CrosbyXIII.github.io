@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 import re
 import shutil
+import struct
 import subprocess
 from urllib.parse import quote, urlparse
 
@@ -96,7 +97,7 @@ def render(config, records):
     return f'''<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{escape(config['name'])}</title><meta name="description" content="{escape(config['description'], quote=True)}">
-<link rel="stylesheet" href="style.css"></head><body><main>
+<link rel="stylesheet" href="style.css"><link rel="icon" href="CydiaIcon.png" type="image/png"></head><body><main>
 <header><p class="eyebrow">Tweaks by {escape(config['author'])}</p><h1>{escape(config['name'])}</h1><p class="lead">{escape(config['description'])}</p></header>
 <section class="source"><h2>Add to Cydia</h2><code>{escape(config['base_url'])}</code><p>Sources → Edit → Add. Enter this address, then refresh.</p></section>
 <section class="catalog"><h2>Available tweaks</h2><p class="meta">{len(groups)} tweak(s) · {len(records)} release(s)</p>{''.join(cards)}</section>
@@ -151,6 +152,10 @@ def build(root=ROOT, index_text=None):
     (output / "index.html").write_text(render(config, records))
     (output / "style.css").write_text(CSS)
     shutil.copyfile(root / "LICENSE", output / "LICENSE.txt")
+    icon = (root / "assets/CydiaIcon.png").read_bytes()
+    if (icon[:8] != b"\x89PNG\r\n\x1a\n" or struct.unpack(">II", icon[16:24]) != (64, 64)):
+        raise ValueError("assets/CydiaIcon.png must be a 64×64 PNG")
+    (output / "CydiaIcon.png").write_bytes(icon)
     (output / ".nojekyll").touch()
     (output / "catalog.json").write_text(json.dumps(records, indent=2) + "\n")
     print(f"Built {len(records)} releases for {len({r['Package'] for r in records})} packages in site/.")

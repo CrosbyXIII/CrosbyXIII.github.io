@@ -40,6 +40,8 @@ class RepositoryTests(unittest.TestCase):
         config = {"name": "Test Repo", "label": "Test", "author": "Test Author", "description": "Test packages", "base_url": "https://example.invalid/", "github_url": "https://github.com/example/repo"}
         (self.root / "repository.json").write_text(json.dumps(config))
         (self.root / "LICENSE").write_text("Synthetic test fixture\n")
+        (self.root / "assets").mkdir()
+        shutil.copyfile(Path(__file__).resolve().parents[1] / "assets/CydiaIcon.png", self.root / "assets/CydiaIcon.png")
         self.records = []
         for package, version in (("test.first", "1.0~beta1"), ("test.first", "1.0"), ("test.second", "2.0")):
             fields = {"Package": package, "Version": version, "Architecture": "iphoneos-arm", "Maintainer": "Test <test@example.invalid>", "Name": "Sample <Tweak>", "Author": "Test Author", "Description": "First line\n second line", "Depiction": "https://example.invalid/details/"}
@@ -63,6 +65,7 @@ class RepositoryTests(unittest.TestCase):
         self.assertEqual(records[0]['Author'], 'Test Author')
         self.assertEqual(records[0]['Depiction'], 'https://example.invalid/details/')
         self.assertIn('Sample &lt;Tweak&gt;', (self.root / 'site/index.html').read_text())
+        self.assertEqual((self.root / 'site/CydiaIcon.png').read_bytes(), (self.root / 'assets/CydiaIcon.png').read_bytes())
         verify(self.root)
 
     def test_changed_payload_is_rejected(self):
